@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eduyssey — Navigate Your Future After 12th</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ==========================================================================
+       THEME & VARIABLES
+       ========================================================================== */
+    :root {
+      --bg-primary: #F4E8C1;       
+      --bg-surface: #FFF8E7;       
+      --text-main: #14213D;        
+      --text-muted: #6B4F32;       
+      --gold: #C89B3C;             
+      --burgundy: #7A263A;         
+      --burgundy-hover: #5F1B2B;
+      --border-parchment: #DECBA0;
+      --card-shadow: 0 8px 24px rgba(107, 79, 50, 0.12);
+      --font-serif: 'Cinzel', Georgia, serif;
+      --font-sans: 'Inter', -apple-system, sans-serif;
+      --transition: all 0.3s ease;
+    }
+
+    [data-theme="dark"] {
+      --bg-primary: #0B1020;       
+      --bg-surface: #121A2F;       
+      --text-main: #E9D8A6;        
+      --text-muted: #9EABCA;       
+      --gold: #D4AF5A;             
+      --burgundy: #8B2C42;
+      --border-parchment: #223055;
+      --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-sans); background-color: var(--bg-primary);
+      color: var(--text-main); line-height: 1.6;
+      transition: background-color 0.4s ease, color 0.4s ease;
+      min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, .brand { font-family: var(--font-serif); }
+
+    /* ==========================================================================
+       HEADER & BURGER MENU
+       ========================================================================== */
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--bg-surface);
+      border-bottom: 2px solid var(--border-parchment);
+      padding: 1rem 1.5rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+    
+    .nav-container { max-width: 1240px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+    
+    .header-left { display: flex; align-items: center; gap: 15px; }
+    
+    /* BURGER MENU BUTTON - NOW ALWAYS VISIBLE */
+    .hamburger-btn {
+      display: block; background: none; border: none; font-size: 2rem;
+      color: var(--text-main); cursor: pointer; transition: var(--transition);
+      padding-bottom: 3px;
+    }
+    .hamburger-btn:hover { color: var(--burgundy); transform: scale(1.1); }
+
+    .brand { font-size: 1.8rem; font-weight: 900; color: var(--burgundy); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: var(--transition); }
+    .brand:hover { transform: scale(1.02); }
+    
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-link { font-weight: 600; cursor: pointer; color: var(--text-main); transition: var(--transition); border-bottom: 2px solid transparent; padding-bottom: 4px; }
+    .nav-link:hover, .nav-link.active { color: var(--burgundy); border-bottom-color: var(--burgundy); }
+    
+    .theme-toggle { background: none; border: 1px solid var(--border-parchment); color: var(--gold); padding: 0.5rem; border-radius: 50%; cursor: pointer; }
+    .theme-toggle:hover { background: var(--border-parchment); }
+    .badge { background: var(--burgundy); color: #fff; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; margin-left: 5px; }
+
+    /* --- Sidebar (Burger Menu Layout) --- */
+    .sidebar {
+      position: fixed; top: 0; left: -300px; width: 280px; height: 100vh;
+      background: var(--bg-surface); border-right: 2px solid var(--gold);
+      z-index: 2000; transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 2rem 1.5rem; box-shadow: 5px 0 25px rgba(0,0,0,0.5);
+      display: flex; flex-direction: column;
+    }
+    .sidebar.open { left: 0; }
+    
+    .sidebar-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6); z-index: 1999; display: none; backdrop-filter: blur(3px);
+      transition: opacity 0.3s ease; opacity: 0;
+    }
+    .sidebar-overlay.show { display: block; opacity: 1; }
+
+    .close-sidebar {
+      align-self: flex-end; background: none; border: none; font-size: 2.5rem;
+      color: var(--text-muted); cursor: pointer; margin-bottom: 1rem; line-height: 1;
+    }
+    .close-sidebar:hover { color: var(--burgundy); }
+    
+    .sidebar-links { list-style: none; margin-top: 1rem; }
+    .sidebar-links li {
+      padding: 1.2rem 0; border-bottom: 1px solid var(--border-parchment);
+      font-size: 1.1rem; font-weight: 600; color: var(--text-main); cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .sidebar-links li:hover { color: var(--burgundy); padding-left: 10px; transition: 0.3s; }
+
+    /* ==========================================================================
+       VIEWS & LAYOUT
+       ========================================================================== */
+    .view-container { flex: 1; max-width: 1240px; margin: 0 auto; width: 100%; padding: 2rem 1.5rem; }
+    .view-section { display: none; animation: fadeIn 0.5s; }
+    .view-section.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ==========================================================================
+       HOME PAGE STYLES
+       ========================================================================== */
+    .hero { text-align: center; padding: 5rem 0 4rem; }
+    .hero-icon { font-size: 4rem; margin-bottom: 1rem; animation: float 3s ease-in-out infinite; }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    .hero h1 { font-size: clamp(2.5rem, 5vw, 4rem); margin-bottom: 1.2rem; color: var(--text-main); line-height: 1.2; }
+    .hero p { font-size: 1.15rem; color: var(--text-muted); max-width: 700px; margin: 0 auto 2.5rem; }
+    
+    .btn { display: inline-block; background: var(--burgundy); color: #fff; padding: 1rem 2.5rem; border-radius: 8px; font-weight: bold; cursor: pointer; border: 2px solid var(--burgundy); transition: var(--transition); text-decoration: none; font-size: 1.05rem; }
+    .btn:hover { background: var(--burgundy-hover); border-color: var(--burgundy-hover); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(122, 38, 58, 0.3); }
+    .btn-outline { background: transparent; color: var(--text-main); border-color: var(--gold); }
+    .btn-outline:hover { background: var(--gold); color: #000; box-shadow: 0 10px 20px rgba(200, 155, 60, 0.3); }
+
+    .section-header { text-align: center; margin: 5rem 0 3rem; }
+    .section-header h2 { font-size: 2.2rem; color: var(--burgundy); margin-bottom: 10px; }
+    .section-header p { color: var(--text-muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+
+    .featured-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; margin-bottom: 2rem; }
+    
+    .steps-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
+    .step-card { text-align: center; padding: 2.5rem 1.5rem; background: var(--bg-surface); border: 1px dashed var(--gold); border-radius: 12px; position: relative; transition: var(--transition); }
+    .step-card:hover { transform: translateY(-5px); background: var(--bg-primary); border-style: solid; box-shadow: var(--card-shadow); }
+    .step-num { width: 40px; height: 40px; background: var(--gold); color: #14213D; font-weight: bold; font-family: var(--font-serif); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; position: absolute; top: -20px; left: 50%; transform: translateX(-50%); }
+    .step-card h3 { color: var(--burgundy); margin: 15px 0 10px; font-size: 1.3rem; }
+    
+    .paths-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 4rem; }
+    .path-card { background: var(--bg-surface); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-parchment); text-align: center; cursor: pointer; transition: var(--transition); }
+    .path-card:hover { transform: translateY(-5px); border-color: var(--gold); box-shadow: var(--card-shadow); }
+    .path-card h4 { color: var(--burgundy); font-size: 1.3rem; margin: 10px 0; }
+    .path-card p { color: var(--text-muted); font-size: 0.9rem; }
+
+    /* ==========================================================================
+       SHARED CARDS & FINDER
+       ========================================================================== */
+    .finder-layout { display: grid; grid-template-columns: 280px 1fr; gap: 2rem; }
+    .filter-panel { background: var(--bg-surface); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-parchment); position: sticky; top: 100px; max-height: 85vh; overflow-y: auto;}
+    .filter-group { margin-bottom: 1.2rem; }
+    .filter-group label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.95rem; }
+    .filter-group select { width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid var(--border-parchment); background: var(--bg-primary); color: var(--text-main); outline: none; font-size: 0.95rem; }
+    .filter-group select:focus { border-color: var(--gold); box-shadow: 0 0 5px rgba(200,155,60,0.5); }
+
+    .college-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+    .college-card { background: var(--bg-surface); border: 1px solid var(--border-parchment); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; position: relative; transition: var(--transition); }
+    .college-card:hover { transform: translateY(-5px); box-shadow: var(--card-shadow); border-color: var(--gold); }
+    .match-tag { position: absolute; top: 10px; right: 10px; background: var(--gold); color: #14213D; font-weight: bold; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; z-index: 2; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+    .card-img { width: 100%; height: 200px; object-fit: cover; }
+    .card-body { padding: 1.5rem; display: flex; flex-direction: column; flex: 1; }
+    .card-title { font-size: 1.4rem; color: var(--burgundy); margin-bottom: 5px; }
+    .card-meta { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 8px; }
+    
+    .card-actions { display: flex; gap: 10px; margin-top: auto; }
+    .btn-action { flex: 1; padding: 10px; border: 1px solid var(--border-parchment); background: transparent; color: var(--text-main); font-weight: bold; border-radius: 6px; cursor: pointer; transition: var(--transition); text-align: center; }
+    .btn-action:hover { border-color: var(--gold); color: var(--burgundy); background: rgba(200, 155, 60, 0.1); }
+    .btn-action.saved { background: var(--burgundy); color: #fff; border-color: var(--burgundy); }
+
+    /* ==========================================================================
+       MODALS, TOASTS & FOOTER
+       ========================================================================== */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2001; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+    .modal-content { background: var(--bg-surface); padding: 2.5rem; border-radius: 12px; width: 90%; max-width: 500px; border: 2px solid var(--gold); position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+    .close-btn { position: absolute; top: 15px; right: 20px; font-size: 2rem; cursor: pointer; background: none; border: none; color: var(--text-muted); line-height: 1; }
+    .close-btn:hover { color: var(--burgundy); }
+    
+    .toast { position: fixed; bottom: 30px; right: 30px; background: var(--burgundy); color: #fff; padding: 15px 25px; border-radius: 8px; font-weight: bold; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transform: translateY(100px); opacity: 0; transition: var(--transition); z-index: 3000; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    footer { background: #0B1020; color: #E9D8A6; padding: 4rem 1.5rem 2rem; text-align: center; border-top: 4px solid var(--burgundy); margin-top: auto; }
+
+    /* Responsive */
+    @media (max-width: 860px) {
+      .nav-links { display: none; }
+      .finder-layout { grid-template-columns: 1fr; }
+      .filter-panel { position: static; margin-bottom: 2rem; max-height: unset; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==========================================================================
+       SIDEBAR (BURGER MENU) & OVERLAY
+       ========================================================================== -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+  <div class="sidebar" id="sidebar">
+    <button class="close-sidebar" onclick="toggleSidebar()">✖</button>
+    <div class="brand" style="font-size: 2rem; margin-bottom: 2rem;">🧭 Eduyssey</div>
+    <ul class="sidebar-links">
+      <li onclick="switchTab('home'); toggleSidebar()">Home <span>→</span></li>
+      <li onclick="switchTab('finder'); toggleSidebar()">Chart Course <span>→</span></li>
+      <li onclick="switchTab('journey'); toggleSidebar()">My Journey <span class="badge" id="sidebar-badge">0</span></li>
+      <li onclick="switchTab('compare'); toggleSidebar()">Compare <span>→</span></li>
+    </ul>
+    <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid var(--border-parchment); text-align: center;">
+      <p style="color: var(--text-muted); font-size: 0.9rem;">Navigate your future.</p>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       HEADER
+       ========================================================================== -->
+  <header>
+    <div class="nav-container">
+      <div class="header-left">
+        <!-- HAMBURGER BUTTON IS NOW ALWAYS VISIBLE -->
+        <button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
+        <div class="brand" onclick="switchTab('home')">Eduyssey</div>
+      </div>
+      
+      <!-- Hides on mobile, but visible on Desktop -->
+      <ul class="nav-links">
+        <li class="nav-link active" data-tab="home" onclick="switchTab('home')">Home</li>
+        <li class="nav-link" data-tab="finder" onclick="switchTab('finder')">Chart Course</li>
+        <li class="nav-link" data-tab="journey" onclick="switchTab('journey')">My Journey <span class="badge" id="badge-count">0</span></li>
+        <li class="nav-link" data-tab="compare" onclick="switchTab('compare')">Compare</li>
+      </ul>
+      
+      <button class="theme-toggle" id="theme-btn" title="Toggle Light/Dark Mode">🌙</button>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       MAIN VIEWS
+       ========================================================================== -->
+  <main class="view-container">
+    
+    <!-- 1. HOME VIEW -->
+    <div id="view-home" class="view-section active">
+      
+      <div class="hero">
+        <div class="hero-icon">📜</div>
+        <h1>Your Journey Begins After 12th.</h1>
+        <p>The transition from school to college is an epic quest. Discover the legendary institutions, paths, and domains designed to shape your next great adventure.</p>
+        <div style="display:flex; justify-content:center; gap:15px; flex-wrap:wrap;">
+          <a class="btn" onclick="switchTab('finder')">Chart Your Course</a>
+          <a class="btn btn-outline" onclick="switchTab('journey')">Inspect My Map</a>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <h2>Legendary Destinations</h2>
+        <p>Explore some of the most prestigious realms of learning across the land.</p>
+      </div>
+      
+      <div class="featured-grid">
+        <div class="college-card">
+          <img src="https://images.unsplash.com/photo-1562774053-701939374585?w=500&q=80" class="card-img" alt="IIT Delhi">
+          <div class="card-body">
+            <h3 class="card-title">IIT Delhi</h3>
+            <p class="card-meta"><span>📍 Delhi</span> <span>🎓 Government</span> <span>⚙️ Engineering</span></p>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">One of the supreme temples of technology. Requires the ultimate trial of JEE Advanced.</p>
+            <div class="card-actions">
+              <button class="btn-action" onclick="openDetails(1)">Inspect Details</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="college-card">
+          <img src="https://images.unsplash.com/photo-1513258496099-48168024aec0?w=500&q=80" class="card-img" alt="NID Ahmedabad">
+          <div class="card-body">
+            <h3 class="card-title">NID Ahmedabad</h3>
+            <p class="card-meta"><span>📍 Ahmedabad</span> <span>🎓 Government</span> <span>🎨 Design</span></p>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">The pinnacle of visual craft and design thinking. Requires mastering the NID DAT trial.</p>
+            <div class="card-actions">
+              <button class="btn-action" onclick="openDetails(5)">Inspect Details</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="college-card">
+          <img src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=500&q=80" class="card-img" alt="BITS Pilani">
+          <div class="card-body">
+            <h3 class="card-title">BITS Pilani</h3>
+            <p class="card-meta"><span>📍 Pilani</span> <span>🎓 Private</span> <span>⚙️ Tech</span></p>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">A highly revered private guild with zero attendance restrictions and stellar placements.</p>
+            <div class="card-actions">
+              <button class="btn-action" onclick="openDetails(2)">Inspect Details</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div style="text-align: center; margin-bottom: 4rem;">
+        <button class="btn btn-outline" onclick="switchTab('finder')">View All Destinations →</button>
+      </div>
+
+      <div class="section-header" style="background: rgba(200,155,60,0.05); padding: 3rem 1rem; border-radius: 12px; border: 1px solid var(--border-parchment);">
+        <h2 style="margin-bottom: 2rem;">How Your Journey Works</h2>
+        <div class="steps-container">
+          <div class="step-card">
+            <div class="step-num">1</div>
+            <h3>Choose Your Path</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Select your desired field of study—be it Engineering, Medicine, Arts, or Law.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">2</div>
+            <h3>Set Preferences</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Tell us your budget, location, and preferred institution type.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">3</div>
+            <h3>Shortlist & Compare</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Save your favorite destinations and compare their treasuries side-by-side.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Paths (Expanded) -->
+      <div class="section-header">
+        <h2>Quick Path Selection</h2>
+        <p>Instantly filter the map based on your calling.</p>
+      </div>
+      <div class="paths-grid">
+        <div class="path-card" onclick="quickFilter('B.Tech')">
+          <div style="font-size:3rem">⚙️</div>
+          <h4>Engineering</h4>
+          <p>B.Tech, Systems</p>
+        </div>
+        <div class="path-card" onclick="quickFilter('MBBS')">
+          <div style="font-size:3rem">⚕️</div>
+          <h4>Medicine</h4>
+          <p>MBBS, BDS</p>
+        </div>
+        <div class="path-card" onclick="quickFilter('BBA')">
+          <div style="font-size:3rem">🏛️</div>
+          <h4>Management</h4>
+          <p>BBA, B.Com</p>
+        </div>
+        <div class="path-card" onclick="quickFilter('B.Des')">
+          <div style="font-size:3rem">🎨</div>
+          <h4>Design</h4>
+          <p>B.Des, Arts</p>
+        </div>
+        <div class="path-card" onclick="quickFilter('LLB')">
+          <div style="font-size:3rem">⚖️</div>
+          <h4>Law</h4>
+          <p>BA LLB, Legal</p>
+        </div>
+        <div class="path-card" onclick="quickFilter('B.Arch')">
+          <div style="font-size:3rem">📐</div>
+          <h4>Architecture</h4>
+          <p>B.Arch, Planning</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. FINDER VIEW (EXPANDED FILTERS) -->
+    <div id="view-finder" class="view-section">
+      <div class="finder-layout">
+        <aside class="filter-panel">
+          <h3 style="color:var(--burgundy); margin-bottom:1.5rem; display:flex; align-items:center; gap:8px;">🧭 Filters</h3>
+          
+          <div class="filter-group">
+            <label>Field of Study</label>
+            <select id="filter-course" onchange="applyFilters()">
+              <option value="All">All Courses</option>
+              <option value="B.Tech">B.Tech (Engineering)</option>
+              <option value="MBBS">MBBS (Medicine)</option>
+              <option value="BBA">BBA (Management)</option>
+              <option value="B.Com">B.Com (Commerce)</option>
+              <option value="BA">BA (Arts & Humanities)</option>
+              <option value="B.Des">B.Des (Design)</option>
+              <option value="LLB">LLB / BA LLB (Law)</option>
+              <option value="B.Arch">B.Arch (Architecture)</option>
+              <option value="BCA">BCA (Computers)</option>
+              <option value="Hotel Management">Hotel Management</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label>Location</label>
+            <select id="filter-location" onchange="applyFilters()">
+              <option value="All">All India</option>
+              <option value="Delhi">Delhi / NCR</option>
+              <option value="Mumbai">Mumbai</option>
+              <option value="Bengaluru">Bengaluru</option>
+              <option value="Chennai">Chennai</option>
+              <option value="Hyderabad">Hyderabad</option>
+              <option value="Kolkata">Kolkata</option>
+              <option value="Pune">Pune</option>
+              <option value="Ahmedabad">Ahmedabad</option>
+              <option value="Pilani">Pilani</option>
+              <option value="Mathura">Mathura</option>
+              <option value="Chandigarh">Chandigarh</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label>Budget Limit</label>
+            <select id="filter-budget" onchange="applyFilters()">
+              <option value="10000000">No Limit</option>
+              <option value="50000">Under ₹50,000</option>
+              <option value="150000">Under ₹1.5 Lakh</option>
+              <option value="300000">Under ₹3.0 Lakh</option>
+              <option value="600000">Under ₹6.0 Lakh</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label>Type</label>
+            <select id="filter-type" onchange="applyFilters()">
+              <option value="All">Any Type</option>
+              <option value="Government">Government / Public</option>
+              <option value="Private">Private</option>
+            </select>
+          </div>
+        </aside>
+
+        <div>
+          <h2 style="margin-bottom: 20px; color: var(--burgundy); font-size: 2rem;">Guided Destinations</h2>
+          <div class="college-grid" id="results-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. JOURNEY VIEW -->
+    <div id="view-journey" class="view-section">
+      <h2 style="font-size:2.5rem; color:var(--burgundy); text-align:center;">Your Shortlist</h2>
+      <p style="text-align:center; color:var(--text-muted); margin-bottom:3rem;">Your saved destinations for the upcoming adventure.</p>
+      
+      <div class="college-grid" id="saved-grid">
+         <p style="grid-column: 1/-1; text-align:center; font-size: 1.2rem; color: var(--text-muted); padding: 4rem 0; border: 2px dashed var(--border-parchment); border-radius: 12px;">You have no saved destinations on your map yet.</p>
+      </div>
+    </div>
+
+    <!-- 4. COMPARE VIEW -->
+    <div id="view-compare" class="view-section">
+      <h2 style="font-size:2.5rem; color:var(--burgundy); text-align:center; margin-bottom:2rem;">The Council of Comparison</h2>
+      <div style="overflow-x: auto; background: var(--bg-surface); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-parchment); box-shadow: var(--card-shadow);">
+        <table style="width: 100%; border-collapse: collapse; text-align: left;" id="compare-table"></table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <h2 style="font-size: 2rem; color: var(--gold);">🧭 Eduyssey</h2>
+    <p style="margin-top:10px; color:#9EABCA; max-width: 400px; margin: 10px auto;">The stars guide the sailor, but the map guides the student. Navigate your future with confidence.</p>
+    <p style="margin-top:30px; font-size:0.85rem; color: rgba(255,255,255,0.4);">&copy; 2026 Eduyssey Platform. Handcrafted for travelers.</p>
+  </footer>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="detail-modal">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeModal()">✖</button>
+      <h2 id="m-title" style="color:var(--burgundy); margin-bottom:5px; font-size: 2rem;">Title</h2>
+      <p id="m-city" style="color:var(--gold); font-weight:bold; margin-bottom:20px; font-size: 1.1rem;">City</p>
+      
+      <div style="margin-bottom:12px; font-size: 1.05rem;"><strong>Available Disciplines:</strong> <span id="m-courses" style="color:var(--text-muted)"></span></div>
+      <div style="margin-bottom:12px; font-size: 1.05rem;"><strong>Annual Treasury:</strong> <span id="m-fees" style="color:var(--text-muted)"></span></div>
+      <div style="margin-bottom:12px; font-size: 1.05rem;"><strong>Institution Patronage:</strong> <span id="m-type" style="color:var(--text-muted)"></span></div>
+      <div style="margin-bottom:20px; font-size: 1.05rem;"><strong>Entrance Trial:</strong> <span id="m-exam" style="color:var(--text-muted)"></span></div>
+      
+      <button class="btn" style="width: 100%; text-align: center;" onclick="closeModal()">Close Scroll</button>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast-alert">Action Successful!</div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // EXPANDED COLLEGE DATABASE (20+ Institutions)
+    const COLLEGES = [
+      { id: 1, name: "IIT Delhi", city: "Delhi", type: "Government", courses: ["B.Tech"], fees: 220000, exam: "JEE Advanced", img: "https://images.unsplash.com/photo-1562774053-701939374585?w=500&q=80" },
+      { id: 2, name: "BITS Pilani", city: "Pilani", type: "Private", courses: ["B.Tech", "B.Pharm"], fees: 480000, exam: "BITSAT", img: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=500&q=80" },
+      { id: 3, name: "AIIMS New Delhi", city: "Delhi", type: "Government", courses: ["MBBS"], fees: 2000, exam: "NEET UG", img: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=500&q=80" },
+      { id: 4, name: "Christ University", city: "Bengaluru", type: "Private", courses: ["BBA", "B.Com", "BCA"], fees: 210000, exam: "CUET / Merit", img: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=500&q=80" },
+      { id: 5, name: "NID Ahmedabad", city: "Ahmedabad", type: "Government", courses: ["B.Des"], fees: 260000, exam: "NID DAT", img: "https://images.unsplash.com/photo-1513258496099-48168024aec0?w=500&q=80" },
+      { id: 6, name: "IIT Bombay", city: "Mumbai", type: "Government", courses: ["B.Tech", "B.Des"], fees: 225000, exam: "JEE Advanced", img: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=500&q=80" },
+      { id: 7, name: "National Law University", city: "Delhi", type: "Government", courses: ["LLB", "BA LLB"], fees: 180000, exam: "AILET", img: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=500&q=80" },
+      { id: 8, name: "IIT Madras", city: "Chennai", type: "Government", courses: ["B.Tech"], fees: 210000, exam: "JEE Advanced", img: "https://images.unsplash.com/photo-1562774053-701939374585?w=500&q=80" },
+      { id: 9, name: "GLA University", city: "Mathura", type: "Private", courses: ["B.Tech", "BBA", "BCA", "B.Com"], fees: 160000, exam: "GLAET", img: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=500&q=80" },
+      { id: 10, name: "Jadavpur University", city: "Kolkata", type: "Government", courses: ["B.Tech", "BA"], fees: 15000, exam: "WBJEE", img: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=500&q=80" },
+      { id: 11, name: "St. Xavier's College", city: "Mumbai", type: "Private", courses: ["BA", "B.Com"], fees: 45000, exam: "Merit / XET", img: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=500&q=80" },
+      { id: 12, name: "NIFT Delhi", city: "Delhi", type: "Government", courses: ["B.Des"], fees: 280000, exam: "NIFT Entrance", img: "https://images.unsplash.com/photo-1513258496099-48168024aec0?w=500&q=80" },
+      { id: 13, name: "SRM University", city: "Chennai", type: "Private", courses: ["B.Tech", "BCA"], fees: 300000, exam: "SRMJEEE", img: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=500&q=80" },
+      { id: 14, name: "IHM Pusa", city: "Delhi", type: "Government", courses: ["Hotel Management"], fees: 120000, exam: "NCHMCT JEE", img: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=500&q=80" },
+      { id: 15, name: "SPA Delhi", city: "Delhi", type: "Government", courses: ["B.Arch"], fees: 150000, exam: "JEE Main Paper 2", img: "https://images.unsplash.com/photo-1564069114553-7215e1ff1890?w=500&q=80" },
+      { id: 16, name: "Osmania University", city: "Hyderabad", type: "Government", courses: ["BA", "B.Com", "LLB"], fees: 20000, exam: "OAMDC / TS LAWCET", img: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=500&q=80" },
+      { id: 17, name: "Fergusson College", city: "Pune", type: "Private", courses: ["BA"], fees: 35000, exam: "Merit", img: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=500&q=80" },
+      { id: 18, name: "Symbiosis Law School", city: "Pune", type: "Private", courses: ["LLB", "BA LLB"], fees: 380000, exam: "SLAT", img: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=500&q=80" },
+      { id: 19, name: "Punjab University", city: "Chandigarh", type: "Government", courses: ["B.Tech", "BA", "B.Com"], fees: 90000, exam: "PU CET", img: "https://images.unsplash.com/photo-1562774053-701939374585?w=500&q=80" },
+      { id: 20, name: "IIM Indore", city: "Indore", type: "Government", courses: ["BBA"], fees: 400000, exam: "IPMAT", img: "https://images.unsplash.com/photo-1564069114553-7215e1ff1890?w=500&q=80" }
+    ];
+
+    let savedIds = new Set();
+
+    // Sidebar Logic
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      if (sidebar.classList.contains('open')) {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('show');
+      } else {
+        sidebar.classList.add('open');
+        overlay.classList.add('show');
+      }
+    }
+
+    // Navigation Logic
+    function switchTab(tabId) {
+      document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById('view-' + tabId).classList.add('active');
+      
+      document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+      const activeLink = document.querySelector(`.nav-link[data-tab="${tabId}"]`);
+      if (activeLink) activeLink.classList.add('active');
+      
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function quickFilter(course) {
+      document.getElementById('filter-course').value = course;
+      switchTab('finder');
+      applyFilters();
+    }
+
+    // Scoring & Filtering
+    function getScore(c, f) {
+      let score = 0;
+      if (f.course === "All" || c.courses.includes(f.course)) score += 40;
+      if (f.location === "All" || c.city === f.location) score += 30;
+      if (c.fees <= f.budget) score += 20;
+      if (f.type === "All" || c.type === f.type) score += 10;
+      return score;
+    }
+
+    function applyFilters() {
+      const filters = {
+        course: document.getElementById('filter-course').value,
+        location: document.getElementById('filter-location').value,
+        budget: Number(document.getElementById('filter-budget').value),
+        type: document.getElementById('filter-type').value
+      };
+
+      const results = COLLEGES.map(c => ({ ...c, score: getScore(c, filters) })).sort((a,b) => b.score - a.score);
+      const grid = document.getElementById('results-grid');
+      grid.innerHTML = '';
+
+      results.forEach(c => {
+        const isSaved = savedIds.has(c.id);
+        grid.innerHTML += `
+          <div class="college-card">
+            <div class="match-tag">${c.score}% Match</div>
+            <img src="${c.img}" class="card-img" alt="${c.name}">
+            <div class="card-body">
+              <h3 class="card-title">${c.name}</h3>
+              <p class="card-meta"><span>📍 ${c.city}</span> <span>💰 ₹${c.fees.toLocaleString()}</span></p>
+              <div class="card-actions">
+                <button class="btn-action" onclick="openDetails(${c.id})">Details</button>
+                <button class="btn-action ${isSaved ? 'saved' : ''}" onclick="toggleSave(${c.id})">${isSaved ? '✓ Saved' : '+ Add'}</button>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // Save Logic
+    function toggleSave(id) {
+      if(savedIds.has(id)) {
+        savedIds.delete(id);
+        showToast("Removed from your Map!");
+      } else {
+        savedIds.add(id);
+        showToast("Inscribed on your Journey!");
+      }
+      
+      document.getElementById('badge-count').innerText = savedIds.size;
+      document.getElementById('sidebar-badge').innerText = savedIds.size;
+      
+      if(document.getElementById('view-finder').classList.contains('active')) applyFilters();
+      updateSavedView();
+      updateCompareView();
+    }
+
+    // Saved Grid Update
+    function updateSavedView() {
+      const grid = document.getElementById('saved-grid');
+      grid.innerHTML = '';
+      
+      if(savedIds.size === 0) {
+        grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; font-size: 1.2rem; color: var(--text-muted); padding: 4rem 0; border: 2px dashed var(--border-parchment); border-radius: 12px;">You have no saved destinations on your map yet.</p>';
+        return;
+      }
+
+      COLLEGES.filter(c => savedIds.has(c.id)).forEach(c => {
+        grid.innerHTML += `
+          <div class="college-card" style="padding:1.5rem">
+            <h3 class="card-title">${c.name}</h3>
+            <p class="card-meta">📍 ${c.city} • 💰 ₹${c.fees.toLocaleString()}</p>
+            <div class="card-actions">
+               <button class="btn-action" onclick="openDetails(${c.id})">Details</button>
+               <button class="btn-action saved" onclick="toggleSave(${c.id})">Remove</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // Compare Table Update
+    function updateCompareView() {
+      const table = document.getElementById('compare-table');
+      const selected = COLLEGES.filter(c => savedIds.has(c.id));
+      
+      if(selected.length === 0) {
+        table.innerHTML = '<tr><td style="padding:4rem; text-align:center; color: var(--text-muted); font-size: 1.1rem;">Add colleges from "Chart Course" to summon the Council of Comparison.</td></tr>';
+        return;
+      }
+
+      let html = '<thead><tr><th style="padding:1.5rem; border-bottom:2px solid var(--gold); font-family: var(--font-serif); font-size:1.2rem;">Features</th>';
+      selected.forEach(c => html += `<th style="padding:1.5rem; border-bottom:2px solid var(--gold); color:var(--burgundy); font-family: var(--font-serif); font-size:1.2rem;">${c.name}</th>`);
+      html += '</tr></thead><tbody>';
+
+      const metrics = [ { label: 'Location', key: 'city' }, { label: 'Institution Type', key: 'type' }, { label: 'Entrance Trial', key: 'exam' }, { label: 'Annual Treasury', key: 'fees' } ];
+      
+      metrics.forEach(m => {
+        html += `<tr><th style="padding:1.2rem 1.5rem; border-bottom:1px solid var(--border-parchment);">${m.label}</th>`;
+        selected.forEach(c => {
+          let val = m.key === 'fees' ? `₹${c[m.key].toLocaleString()}` : c[m.key];
+          html += `<td style="padding:1.2rem 1.5rem; border-bottom:1px solid var(--border-parchment);">${val}</td>`;
+        });
+        html += '</tr>';
+      });
+
+      table.innerHTML = html + '</tbody>';
+    }
+
+    // Modal Operations
+    function openDetails(id) {
+      const c = COLLEGES.find(col => col.id === id);
+      document.getElementById('m-title').innerText = c.name;
+      document.getElementById('m-city').innerText = '📍 ' + c.city;
+      document.getElementById('m-courses').innerText = c.courses.join(', ');
+      document.getElementById('m-fees').innerText = '₹' + c.fees.toLocaleString();
+      document.getElementById('m-type').innerText = c.type;
+      document.getElementById('m-exam').innerText = c.exam;
+      
+      document.getElementById('detail-modal').style.display = 'flex';
+    }
+
+    function closeModal() { document.getElementById('detail-modal').style.display = 'none'; }
+    document.getElementById('detail-modal').addEventListener('click', function(e) { if(e.target === this) closeModal(); });
+
+    // Toasts
+    function showToast(msg) {
+      const t = document.getElementById('toast-alert');
+      t.innerText = msg; t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    // Theme Engine
+    document.getElementById('theme-btn').addEventListener('click', function() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if(isDark) {
+        document.documentElement.removeAttribute('data-theme');
+        this.innerText = '🌙';
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        this.innerText = '☀️';
+      }
+    });
+
+    // Boot Up
+    applyFilters();
+    updateCompareView();
+
+  </script>
+</body>
+</html>
